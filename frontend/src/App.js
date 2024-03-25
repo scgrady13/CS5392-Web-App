@@ -11,7 +11,7 @@ import SignIn from "./Pages/SignIn.tsx";
 import Home from "./Pages/Home.tsx";
 import StaffRootAccount from "./Pages/StaffRootAccount.tsx";
 import ChangePassword from "./Components/StaffDashboardComponents/ChangePassword.tsx";
-import ChangePasswordProf from "./Components/ProfessionalDashboardComponents/ChangePassword.tsx";
+import ChangePasswordProf from "./Components/ProfessionalDashboardComponents/ChangePasswordProf.tsx";
 import './App.css';
 
 function App() {
