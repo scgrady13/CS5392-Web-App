@@ -106,20 +106,79 @@ CREATE TABLE Job (
     FOREIGN KEY (EmployerID) REFERENCES Employer(EmployerID)
 );
 
+CREATE TABLE CreateProfRequest (
+    RequestID INT PRIMARY KEY AUTO_INCREMENT,
+    ProfessionalTempID VARCHAR(10),
+    FOREIGN KEY (ProfessionalTempID) REFERENCES ProfessionalRegistration(ProfessionalTempID)
+);
+
+-- Create Trigger to automatically insert ProfessionalTempID into ProfessionalProfileCreateRequest
+DELIMITER $$
+CREATE TRIGGER insert_into_professional_profile_create_request
+AFTER INSERT ON ProfessionalRegistration
+FOR EACH ROW
+BEGIN
+    INSERT INTO ProfessionalProfileCreateRequest (ProfessionalTempID) VALUES (NEW.ProfessionalTempID);
+END$$
+DELIMITER ;
+
+-- Create Employer Profile Create Request Table
+CREATE TABLE CreateEmpRequest (
+    RequestID INT PRIMARY KEY AUTO_INCREMENT,
+    EmployerTempID VARCHAR(10),
+    FOREIGN KEY (EmployerTempID) REFERENCES EmployerRegistration(EmployerTempID)
+);
+
+-- Create Trigger to automatically insert EmployerTempID into EmployerProfileCreateRequest
+DELIMITER $$
+CREATE TRIGGER insert_into_employer_profile_create_request
+AFTER INSERT ON EmployerRegistration
+FOR EACH ROW
+BEGIN
+    INSERT INTO EmployerProfileCreateRequest (EmployerTempID) VALUES (NEW.EmployerTempID);
+END$$
+DELIMITER ;
+
+
 -- Create Job Matching Request Table
 CREATE TABLE JobMatchingRequest (
-    RequestID INT PRIMARY KEY AUTO_INCREMENT
+    RequestID INT PRIMARY KEY AUTO_INCREMENT,
+    ProfessionalID VARCHAR(10),
+    FOREIGN KEY (ProfessionalID) REFERENCES Professional(ProfessionalID)
 );
 
 -- Create Professional Profile Delete Request Table
 CREATE TABLE ProfessionalProfileDeleteRequest (
-    RequestID INT PRIMARY KEY AUTO_INCREMENT
+    RequestID INT PRIMARY KEY AUTO_INCREMENT,
+    ProfessionalID VARCHAR(10),
+    FOREIGN KEY (ProfessionalID) REFERENCES Professional(ProfessionalID)
 );
+
+-- Create Trigger to delete corresponding row from Professional table
+DELIMITER $$
+CREATE TRIGGER delete_professional_profile_row
+AFTER INSERT ON ProfessionalProfileDeleteRequest
+FOR EACH ROW
+BEGIN
+    DELETE FROM Professional WHERE ProfessionalID = NEW.ProfessionalID;
+END$$
+DELIMITER ;
 
 -- Create Employer Profile Delete Request Table
 CREATE TABLE EmployerProfileDeleteRequest (
-    RequestID INT PRIMARY KEY AUTO_INCREMENT
+    RequestID INT PRIMARY KEY AUTO_INCREMENT,
+    EmployerID VARCHAR(10),
+    FOREIGN KEY (EmployerID) REFERENCES Employer(EmployerID)
 );
+-- Create Trigger to delete corresponding row from Employer table
+DELIMITER $$
+CREATE TRIGGER delete_employer_profile_row
+AFTER INSERT ON EmployerProfileDeleteRequest
+FOR EACH ROW
+BEGIN
+    DELETE FROM Employer WHERE EmployerID = NEW.EmployerID;
+END$$
+DELIMITER ;
 
 DELIMITER $$
 
