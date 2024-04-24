@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, ProfessionalRegistration, Staff, Professional, EmployerRegistration, Employer, Job
+from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,19 +21,10 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class ProfessionalRegistrationSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
 
     class Meta:
         model = ProfessionalRegistration
         fields = '__all__'
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        user_serializer = UserSerializer(data=user_data)
-        user_serializer.is_valid(raise_exception=True)
-        user = user_serializer.save()
-        professional_registration = ProfessionalRegistration.objects.create(user=user, **validated_data)
-        return professional_registration
 
 class StaffSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,31 +37,26 @@ class ProfessionalSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class EmployerRegistrationSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
 
     class Meta:
         model = EmployerRegistration
         fields = '__all__'
 
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        user_serializer = UserSerializer(data=user_data)
-        user_serializer.is_valid(raise_exception=True)
-        user = user_serializer.save()
-        employer_registration = EmployerRegistration.objects.create(user=user, **validated_data)
-        return employer_registration
+
+
 
 class EmployerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employer
         fields = '__all__'
 
+    
+
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = '__all__'
-from rest_framework import serializers
-from .models import CreateProfRequest, CreateEmpRequest, JobMatchingRequest, ProfessionalProfileDeleteRequest, EmployerProfileDeleteRequest
+
 
 class CreateProfRequestSerializer(serializers.ModelSerializer):
     class Meta:

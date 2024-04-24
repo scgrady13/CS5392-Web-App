@@ -1,249 +1,152 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-type Professional = {
+type ProfessionalRegistration = {
   id: number;
-  name: string;
-  username: string;
-  contactInformation: string;
-  companyAddress: string;
-  firstname: string;
-  lastname: string;
-  degreeDetails: string;
-  qualifications: {
-    category: string;
-    keywords: string[];
-  }[];
+  user_name: string;
+  first_name: string;
+  last_name: string;
+  email_address: string;
+  degree_name: string;
+  institution_name: string;
+  month_complete: number;
+  year_complete: number;
+  street_address: string;
+  city: string;
+  state: string;
+  zip: string;
+  qualifications: string;
+  phone_number: string;
 };
-
-const professionals: Professional[] = [
-  {
-    id: 1,
-    name: "Professional A",
-    username: "professional_a",
-    contactInformation: "professional_a@gmail.com | (123) 456-7890",
-    companyAddress: "123 Professional St",
-    firstname: "John",
-    lastname: "Doe",
-    degreeDetails: "Bachelor of Science in Engineering",
-    qualifications: [
-      { category: "Languages", keywords: ["Python", "JavaScript"] },
-      { category: "Tools", keywords: ["React", "VS Code", "Git"] },
-      { category: "Database", keywords: ["MongoDB", "PostgreSQL"] },
-      { category: "Experience", keywords: ["2 years"] }
-    ]
-  },
-  {
-    id: 2,
-    name: "Professional B",
-    username: "professional_b",
-    contactInformation: "professional_b@gmail.com | (234) 567-8901",
-    companyAddress: "456 Professional Ave",
-    firstname: "Alice",
-    lastname: "Smith",
-    degreeDetails: "Master of Business Administration",
-    qualifications: [
-      { category: "Languages", keywords: ["Java", "C++"] },
-      { category: "Tools", keywords: ["Eclipse", "Sublime Text"] },
-      { category: "Database", keywords: ["MySQL", "SQLite"] },
-      { category: "Experience", keywords: ["5 years"] }
-    ]
-  },
-  {
-    id: 3,
-    name: "Professional C",
-    username: "professional_c",
-    contactInformation: "professional_c@gmail.com | (345) 678-9012",
-    companyAddress: "789 Professional Blvd",
-    firstname: "David",
-    lastname: "Johnson",
-    degreeDetails: "Bachelor of Arts in English Literature",
-    qualifications: [
-      { category: "Languages", keywords: ["Ruby", "PHP"] },
-      { category: "Tools", keywords: ["Atom", "NetBeans"] },
-      { category: "Database", keywords: ["SQLite", "Redis"] },
-      { category: "Experience", keywords: ["4 years"] }
-    ]
-  },
-  {
-    id: 4,
-    name: "Professional D",
-    username: "professional_d",
-    contactInformation: "professional_d@gmail.com | (456) 789-0123",
-    companyAddress: "1011 Professional Rd",
-    firstname: "Emily",
-    lastname: "Brown",
-    degreeDetails: "Bachelor of Science in Computer Science",
-    qualifications: [
-      { category: "Languages", keywords: ["C#", "Swift"] },
-      { category: "Tools", keywords: ["Xcode", "Visual Studio"] },
-      { category: "Database", keywords: ["PostgreSQL", "Firebase"] },
-      { category: "Experience", keywords: ["2 years"] }
-    ]
-  },
-  {
-    id: 5,
-    name: "Professional E",
-    username: "professional_e",
-    contactInformation: "professional_e@gmail.com | (567) 890-1234",
-    companyAddress: "1315 Professional Ln",
-    firstname: "Michael",
-    lastname: "Garcia",
-    degreeDetails: "Bachelor of Science in Electrical Engineering",
-    qualifications: [
-      { category: "Languages", keywords: ["JavaScript", "TypeScript"] },
-      { category: "Tools", keywords: ["Angular", "WebStorm", "GitHub"] },
-      { category: "Database", keywords: ["MongoDB", "MySQL"] },
-      { category: "Experience", keywords: ["3 years"] }
-    ]
-  },
-  {
-    id: 6,
-    name: "Professional F",
-    username: "professional_f",
-    contactInformation: "professional_f@gmail.com | (678) 901-2345",
-    companyAddress: "1617 Professional Ct",
-    firstname: "Jennifer",
-    lastname: "Martinez",
-    degreeDetails: "Master of Science in Computer Engineering",
-    qualifications: [
-      { category: "Languages", keywords: ["Java", "Python"] },
-      { category: "Tools", keywords: ["IntelliJ IDEA", "PyCharm"] },
-      { category: "Database", keywords: ["SQLite", "MongoDB"] },
-      { category: "Experience", keywords: ["4 years"] }
-    ]
-  },
-  {
-    id: 7,
-    name: "Professional G",
-    username: "professional_g",
-    contactInformation: "professional_g@gmail.com | (789) 012-3456",
-    companyAddress: "1819 Professional Pl",
-    firstname: "Matthew",
-    lastname: "Lopez",
-    degreeDetails: "Bachelor of Science in Mechanical Engineering",
-    qualifications: [
-      { category: "Languages", keywords: ["C", "C++"] },
-      { category: "Tools", keywords: ["Visual Studio Code", "Xcode"] },
-      { category: "Database", keywords: ["PostgreSQL", "SQLite"] },
-      { category: "Experience", keywords: ["3 years"] }
-    ]
-  },
-  {
-    id: 8,
-    name: "Professional H",
-    username: "professional_h",
-    contactInformation: "professional_h@gmail.com | (890) 123-4567",
-    companyAddress: "2123 Professional Way",
-    firstname: "Jessica",
-    lastname: "Lee",
-    degreeDetails: "Master of Science in Information Technology",
-    qualifications: [
-      { category: "Languages", keywords: ["Python", "Java"] },
-      { category: "Tools", keywords: ["VS Code", "PyCharm"] },
-      { category: "Database", keywords: ["MySQL", "SQLite"] },
-      { category: "Experience", keywords: ["5 years"] }
-    ]
-  },
-  {
-    id: 9,
-    name: "Professional I",
-    username: "professional_i",
-    contactInformation: "professional_i@gmail.com | (901) 234-5678",
-    companyAddress: "2425 Professional Circle",
-    firstname: "Daniel",
-    lastname: "Walker",
-    degreeDetails: "Bachelor of Science in Computer Engineering",
-    qualifications: [
-      { category: "Languages", keywords: ["JavaScript", "C#"] },
-      { category: "Tools", keywords: ["Visual Studio", "Sublime Text"] },
-      { category: "Database", keywords: ["MongoDB", "MySQL"] },
-      { category: "Experience", keywords: ["2 years"] }
-    ]
-  },
-  {
-    id: 10,
-    name: "Professional J",
-    username: "professional_j",
-    contactInformation: "professional_j@gmail.com | (012) 345-6789",
-    companyAddress: "2627 Professional Park",
-    firstname: "Sarah",
-    lastname: "White",
-    degreeDetails: "Master of Science in Data Science",
-    qualifications: [
-      { category: "Languages", keywords: ["Python", "R"] },
-      { category: "Tools", keywords: ["Jupyter Notebook", "RStudio"] },
-      { category: "Database", keywords: ["SQL Server", "PostgreSQL"] },
-      { category: "Experience", keywords: ["3 years"] }
-    ]
-  }
-];
-
-
 
 const ProfessionalRequest = () => {
   const [currentProfessionalIndex, setCurrentProfessionalIndex] = useState(0);
+  const [professionals, setProfessionals] = useState<
+    ProfessionalRegistration[]
+  >([]);
   const [message, setMessage] = useState("");
 
-  const currentProfessional = professionals[currentProfessionalIndex];
-
-  const handleAccept = () => {
-    setMessage("Professional successfully accepted.");
-    setTimeout(() => {
-      setMessage("");
-      if (currentProfessionalIndex < professionals.length - 1) {
-        setCurrentProfessionalIndex(currentProfessionalIndex + 1);
-      } else {
-        setCurrentProfessionalIndex(0);
+  useEffect(() => {
+    const fetchProfessionals = async () => {
+      try {
+        const response = await axios.get<ProfessionalRegistration[]>(
+          "http://localhost:8000/api/professional-registrations/"
+        );
+        setProfessionals(response.data);
+        console.log("Professionals data:", response.data);
+      } catch (error) {
+        console.error("Error fetching professionals:", error);
       }
-    }, 2000);
+    };
+
+    fetchProfessionals();
+  }, []);
+
+  const currentProfessional: ProfessionalRegistration | undefined =
+    professionals[currentProfessionalIndex];
+
+  const handleAccept = async () => {
+    try {
+      if (!currentProfessional) return;
+      // Restructure the data as per the server-side requirements
+      const professionalData = {
+        first_name: currentProfessional.first_name,
+        last_name: currentProfessional.last_name,
+        email_address: currentProfessional.email_address,
+        degree_name: currentProfessional.degree_name,
+        institution_name: currentProfessional.institution_name,
+        month_complete: currentProfessional.month_complete,
+        year_complete: currentProfessional.year_complete,
+        street_address: currentProfessional.street_address,
+        city: currentProfessional.city,
+        state: currentProfessional.state,
+        zip: currentProfessional.zip,
+        qualifications: currentProfessional.qualifications,
+        phone_number: currentProfessional.phone_number,
+        // Add any other required fields
+      };
+
+      // Move the current professional to the professionals table
+      await axios.post(
+        "http://localhost:8000/api/professionals/",
+        professionalData
+      );
+
+      // Delete the current professional from the professional registration table
+      await axios.delete(
+        `http://localhost:8000/api/professional-registrations/${currentProfessional.id}/`
+      );
+
+      setMessage("Professional successfully accepted.");
+      setTimeout(() => {
+        setMessage("");
+        if (currentProfessionalIndex < professionals.length - 1) {
+          setCurrentProfessionalIndex(currentProfessionalIndex + 1);
+        } else {
+          setCurrentProfessionalIndex(0);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error handling professional:", error);
+    }
   };
 
-  const handleDecline = () => {
-    setMessage("Professional successfully declined.");
-    setTimeout(() => {
-      setMessage("");
-      if (currentProfessionalIndex < professionals.length - 1) {
-        setCurrentProfessionalIndex(currentProfessionalIndex + 1);
-      } else {
-        setCurrentProfessionalIndex(0);
-      }
-    }, 2000);
+  const handleDecline = async () => {
+    try {
+      if (!currentProfessional) return;
+      // Delete the current professional from the professional registration table
+      await axios.delete(
+        `http://localhost:8000/api/professional-registrations/${currentProfessional.id}/`
+      );
+
+      setMessage("Professional successfully declined.");
+      setTimeout(() => {
+        setMessage("");
+        if (currentProfessionalIndex < professionals.length - 1) {
+          setCurrentProfessionalIndex(currentProfessionalIndex + 1);
+        } else {
+          setCurrentProfessionalIndex(0);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error handling professional:", error);
+    }
   };
 
   return (
-    <div className="container h-screen flex justify-center items-start">
+    <div className="professional-info text-center w-full">
       {currentProfessional && (
-        <div className="professional-info text-center w-full">
+        <div>
           <table className="w-full">
             <tbody>
               <tr>
-                <td className="p-3">Firstname:</td>
+                <td className="p-3">First Name:</td>
                 <td>
                   <input
                     type="text"
-                    value={currentProfessional.firstname}
+                    value={currentProfessional.first_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
                 </td>
               </tr>
               <tr>
-                <td className="p-3">Lastname:</td>
+                <td className="p-3">Last Name:</td>
                 <td>
                   <input
                     type="text"
-                    value={currentProfessional.lastname}
+                    value={currentProfessional.last_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
                 </td>
               </tr>
               <tr>
-                <td className="p-3"> Preferred Username:</td>
+                <td className="p-3">Preferred Username:</td>
                 <td>
                   <input
                     type="text"
-                    value={currentProfessional.username}
+                    value={currentProfessional.user_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -252,11 +155,55 @@ const ProfessionalRequest = () => {
               <tr>
                 <td className="p-3">Contact Information:</td>
                 <td>
-                  <textarea
-                   
-                    value={currentProfessional.contactInformation}
+                  <input
+                    type="text"
+                    value={currentProfessional.phone_number}
                     readOnly
                     className="w-full p-2 bg-gray-500 resize-none"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="p-3">Email:</td>
+                <td>
+                  <input
+                    type="text"
+                    value={currentProfessional.email_address}
+                    readOnly
+                    className="w-full p-2 bg-gray-500"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="p-3">Degree:</td>
+                <td>
+                  <input
+                    type="text"
+                    value={currentProfessional.degree_name}
+                    readOnly
+                    className="w-full p-2 bg-gray-500"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="p-3">Institution:</td>
+                <td>
+                  <input
+                    type="text"
+                    value={currentProfessional.institution_name}
+                    readOnly
+                    className="w-full p-2 bg-gray-500"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="p-3">Completion Date:</td>
+                <td>
+                  <input
+                    type="text"
+                    value={`${currentProfessional.month_complete}/${currentProfessional.year_complete}`}
+                    readOnly
+                    className="w-full p-2 bg-gray-500"
                   />
                 </td>
               </tr>
@@ -264,44 +211,37 @@ const ProfessionalRequest = () => {
                 <td className="p-3">Mailing Address:</td>
                 <td>
                   <textarea
-                    value={currentProfessional.companyAddress}
+                    value={`${currentProfessional.street_address}, ${currentProfessional.city}, ${currentProfessional.state} ${currentProfessional.zip}`}
                     readOnly
                     className="w-full p-2 bg-gray-500 resize-none"
-                    
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Degree Completion:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.degreeDetails}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
+                    rows={2}
                   />
                 </td>
               </tr>
               <tr>
                 <td className="p-3">Qualifications:</td>
                 <td>
-                  <ul className="text-left">
-                    {currentProfessional.qualifications.map((qualification, index) => (
-                      <li key={index}>
-                        <strong>{qualification.category}:</strong>{" "}
-                        {qualification.keywords.join(", ")}
-                      </li>
-                    ))}
-                  </ul>
+                  <input
+                    type="text"
+                    value={currentProfessional.qualifications}
+                    readOnly
+                    className="w-full p-2 bg-gray-500"
+                  />
                 </td>
               </tr>
             </tbody>
           </table>
           <div className="button-container mt-4">
-            <button onClick={handleAccept} className="bg-blue-600 text-white px-6 py-3 rounded-lg mr-4">
+            <button
+              onClick={handleAccept}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg mr-4"
+            >
               Accept
             </button>
-            <button onClick={handleDecline} className="bg-blue-600 text-white px-6 py-3 rounded-lg">
+            <button
+              onClick={handleDecline}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg"
+            >
               Decline
             </button>
           </div>

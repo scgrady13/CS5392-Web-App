@@ -24,7 +24,7 @@ class Staff(models.Model):
 
 # ProfessionalRegistration model
 class ProfessionalRegistration(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='professional_registrations',default=1)
+    user_name = models.CharField(max_length=255, default='default_name')
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email_address = models.EmailField()
@@ -44,7 +44,7 @@ class ProfessionalRegistration(models.Model):
 
 # Professional model
 class Professional(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='professionals', default=1)
+    id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email_address = models.EmailField()
@@ -64,7 +64,7 @@ class Professional(models.Model):
 
 # EmployerRegistration model
 class EmployerRegistration(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employer_registrations', default=1)
+    user_name = models.CharField(max_length=255, default='default_name')
     company_name = models.CharField(max_length=255)
     street_address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
@@ -80,7 +80,7 @@ class EmployerRegistration(models.Model):
 
 # Employer model
 class Employer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employers')
+    id = models.AutoField(primary_key=True)
     company_name = models.CharField(max_length=255)
     street_address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
@@ -93,7 +93,6 @@ class Employer(models.Model):
 
     class Meta:
         db_table = 'backend_employer'
-
 # Job model
 class Job(models.Model):
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE, related_name='jobs')

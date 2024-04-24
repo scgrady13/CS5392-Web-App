@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 type Professional = {
   id: number;
   fullName: string;
@@ -7,68 +9,43 @@ type Professional = {
   phone: string;
   mailingAddress: string;
   degreeDetails: string;
-  qualifications: {
-    category: string;
-    keywords: string[];
-  }[];
-  description: string;
+  qualifications: string;
 };
 
-const professionals: Professional[] = [
-  {
-    id: 3,
-    fullName: "David Johnson",
-    description: "Total Payments: $60,000 | Pending Payments: $12,000",
-    username: "professional_c",
-    email: "professional_c@gmail.com",
-    phone: "(345) 678-9012",
-    mailingAddress: "123 Professional Lane, City, Country",
-    degreeDetails: "Bachelor of Arts in English Literature",
-    qualifications: [
-      { category: "Languages", keywords: ["Ruby, PHP"] },
-      { category: "Tools", keywords: ["Atom, NetBeans"] },
-      { category: "Database", keywords: ["SQLite, Redis"] },
-      { category: "Experience", keywords: ["4 years"] },
-    ],
-  },
-  {
-    id: 4,
-    fullName: "Emily Brown",
-    description: "Total Payments: $90,000 | Pending Payments: $20,000",
-    username: "professional_d",
-    email: "professional_d@gmail.com",
-    phone: "(456) 789-0123",
-    mailingAddress: "456 Professional Street, Town, Country",
-    degreeDetails: "Bachelor of Science in Computer Science",
-    qualifications: [
-      { category: "Languages", keywords: ["C#, Swift"] },
-      { category: "Tools", keywords: ["Xcode, Visual Studio"] },
-      { category: "Database", keywords: ["PostgreSQL, Firebase"] },
-      { category: "Experience", keywords: ["2 years"] },
-    ],
-  },
-  {
-    id: 6,
-    fullName: "Jennifer Martinez",
-    description: "Total Payments: $70,000 | Pending Payments: $14,000",
-    username: "professional_f",
-    email: "professional_f@gmail.com",
-    phone: "(678) 901-2345",
-    mailingAddress: "789 Professional Court, Village, Country",
-    degreeDetails: "Master of Science in Computer Engineering",
-    qualifications: [
-      { category: "Languages", keywords: ["Java, Python"] },
-      { category: "Tools", keywords: ["IntelliJ IDEA, PyCharm"] },
-      { category: "Database", keywords: ["SQLite, MongoDB"] },
-      { category: "Experience", keywords: ["4 years"] },
-    ],
-  },
-];
-
 const ProfessionalList = () => {
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [selectedProfessional, setSelectedProfessional] =
     useState<Professional | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  useEffect(() => {
+    const fetchProfessionals = async () => {
+      try {
+        const response = await axios.get<any[]>(
+          "http://localhost:8000/api/professionals/"
+        );
+        const transformedProfessionals = transformProfessionals(response.data);
+        setProfessionals(transformedProfessionals);
+      } catch (error) {
+        console.error("Error fetching professionals:", error);
+      }
+    };
+
+    fetchProfessionals();
+  }, []);
+
+  const transformProfessionals = (data: any[]): Professional[] => {
+    return data.map((item) => ({
+      id: item.id,
+      fullName: `${item.first_name} ${item.last_name}`,
+      username: `${item.first_name.toLowerCase()}_${item.last_name.toLowerCase()}`,
+      email: item.email_address,
+      phone: item.phone_number,
+      mailingAddress: `${item.street_address}, ${item.city}, ${item.state} ${item.zip}`,
+      degreeDetails: `${item.degree_name}, ${item.institution_name}, ${item.month_complete}/${item.year_complete}`,
+      qualifications: item.qualifications, // You can set a default value or derive it from the response data
+    }));
+  };
 
   const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);
@@ -77,35 +54,20 @@ const ProfessionalList = () => {
   const filteredProfessionals = professionals.filter((professional) =>
     professional.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   const handleInputChange = (field: keyof Professional, value: string) => {
     if (selectedProfessional) {
       setSelectedProfessional({ ...selectedProfessional, [field]: value });
     }
   };
-  const handleInputChange2 = (
-    field: keyof Professional,
-    value: string,
-    qualificationIndex: number,
-    keywordIndex: number
-  ) => {
-    if (selectedProfessional) {
-      // Create a copy of the selectedProfessional object
-      const updatedProfessional = { ...selectedProfessional };
-      // Update the value of the specified keyword within the specified qualification
-      updatedProfessional.qualifications[qualificationIndex].keywords[
-        keywordIndex
-      ] = value;
-      // Set the updatedProfessional object as the new selectedProfessional
-      setSelectedProfessional(updatedProfessional);
-    }
-  };
-  const handleSave = () => {
+
+  const handleSave = async () => {
     if (!selectedProfessional) {
       console.log("Selected Professional is null. Exiting.");
       return;
     }
 
-    const { fullName, email, phone, mailingAddress, qualifications } =
+    const { id, fullName, email, phone, mailingAddress, qualifications } =
       selectedProfessional;
 
     if (!fullName.trim()) {
@@ -126,20 +88,22 @@ const ProfessionalList = () => {
       alert("Mailing Address cannot be empty");
       return;
     }
-    if (
-      qualifications.some(
-        (qualification) => qualification.keywords.length === 0
-      )
-    ) {
+    if (!qualifications.trim()) {
       alert("Qualifications cannot be empty");
       return;
     }
 
-    // If all validations pass, you can proceed to save the changes
-    alert("Saving changes...");
-
-    // You can navigate to another page here after saving
-    // navigate("/some-page");
+    try {
+      // Update the professional data in the backend
+      await axios.put(
+        `http://localhost:8000/api/professionals/${id}/`,
+        selectedProfessional
+      );
+      alert("Professional updated successfully!");
+    } catch (error) {
+      console.error("Error updating professional:", error);
+      alert("Failed to update professional. Please try again.");
+    }
   };
 
   return (
@@ -253,46 +217,13 @@ const ProfessionalList = () => {
                 <tr>
                   <td className="pr-2">Qualifications:</td>
                   <td>
-                    <ul className="text-left">
-                      {selectedProfessional.qualifications.map(
-                        (qualification, qualificationIndex) => (
-                          <li key={qualificationIndex}>
-                            <strong>{qualification.category}:</strong>{" "}
-                            {/* Map through keywords and render input fields */}
-                            {qualification.keywords.map(
-                              (keyword, keywordIndex) => (
-                                <input
-                                  key={keywordIndex}
-                                  type="text"
-                                  value={keyword}
-                                  onChange={(e) =>
-                                    handleInputChange2(
-                                      "qualifications",
-                                      e.target.value,
-                                      qualificationIndex,
-                                      keywordIndex
-                                    )
-                                  }
-                                  className="w-full p-2 bg-gray-200"
-                                />
-                              )
-                            )}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="pr-2">Description:</td>
-                  <td>
                     <input
                       type="text"
-                      value={selectedProfessional.description}
+                      value={selectedProfessional.qualifications}
                       onChange={(e) =>
-                        handleInputChange("description", e.target.value)
+                        handleInputChange("degreeDetails", e.target.value)
                       }
-                      className="w-full p-2 bg-gray-200 resize-none"
+                      className="w-full p-2 bg-gray-200"
                     />
                   </td>
                 </tr>

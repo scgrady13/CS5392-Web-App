@@ -1,54 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 // Define the type for an employer
 type Employer = {
   id: number;
+  companyName: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zip: string;
   firstName: string;
   lastName: string;
-  companyName: string;
-  username: string;
   emailAddress: string;
   contactNumber: string;
   contactPerson: string;
   mailingAddress: string;
-  description: string;
+  username: string;
 };
 
-const employers: Employer[] = [
-  {
-    id: 2,
-    firstName: "Employer",
-    lastName: "B",
-    companyName: "Example Company B",
-    username: "employer_b",
-    emailAddress: "employerB@gmail.com",
-    contactNumber: "(456) 789-0123",
-    contactPerson: "Employer B",
-    mailingAddress: "456 Example Ave, Town, Country",
-    description: "Total payment: $10,000 | Pending payment: $5000",
-  },
-  {
-    id: 3,
-    firstName: "Employer",
-    lastName: "C",
-    companyName: "Example Company C",
-    username: "employer_c",
-    emailAddress: "employerC@gmail.com",
-    contactNumber: "(789) 012-3456",
-    contactPerson: "Employer C",
-    mailingAddress: "789 Example Blvd, Village, Country",
-    description: "Total payment: $12,000 | Pending payment: $6000",
-  },
-  // Add other employers here
-];
-
-// Now each employer has separate fields for emailAddress, contactNumber, and contactPerson.
-
 const EmployerList = () => {
+  const [employers, setEmployers] = useState<Employer[]>([]);
   const [selectedEmployer, setSelectedEmployer] = useState<Employer | null>(
     null
   );
   const [searchTerm, setSearchTerm] = useState<string>("");
+
+  useEffect(() => {
+    const fetchEmployers = async () => {
+      try {
+        const response = await axios.get<any[]>(
+          "http://localhost:8000/api/employers/"
+        );
+        const transformedEmployers = transformEmployers(response.data);
+        setEmployers(transformedEmployers);
+      } catch (error) {
+        console.error("Error fetching employers:", error);
+      }
+    };
+
+    fetchEmployers();
+  }, []);
+
+  const transformEmployers = (data: any[]): Employer[] => {
+    return data.map((item) => ({
+      id: item.id,
+      companyName: item.company_name,
+      streetAddress: item.street_address,
+      city: item.city,
+      state: item.state,
+      zip: item.zip,
+      firstName: item.first_name,
+      lastName: item.last_name,
+      emailAddress: item.email,
+      contactNumber: item.phone,
+      contactPerson: `${item.first_name} ${item.last_name}`,
+      mailingAddress: `${item.street_address}, ${item.city}, ${item.state} ${item.zip}`,
+
+      username: `${item.first_name.toLowerCase()}_${item.last_name.toLowerCase()}`,
+    }));
+  };
 
   const handleEmployerClick = (employer: Employer) => {
     setSelectedEmployer(employer);
@@ -65,16 +75,19 @@ const EmployerList = () => {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
-  const handleSave = () => {
+
+  const handleSave = async () => {
     if (!selectedEmployer) {
       console.log("Selected Employer is null. Exiting.");
       return;
     }
 
     const {
+      id,
       companyName,
       mailingAddress,
-      contactPerson,
+      firstName,
+      lastName,
       emailAddress,
       contactNumber,
     } = selectedEmployer;
@@ -87,8 +100,12 @@ const EmployerList = () => {
       alert("Mailing Address cannot be empty");
       return;
     }
-    if (!contactPerson.trim()) {
-      alert("Contact Person cannot be empty");
+    if (!firstName.trim()) {
+      alert("First Name cannot be empty");
+      return;
+    }
+    if (!lastName.trim()) {
+      alert("Last Name cannot be empty");
       return;
     }
     if (!emailAddress.trim().endsWith("@gmail.com")) {
@@ -99,12 +116,18 @@ const EmployerList = () => {
       alert("Phone number must contain at least 10 digits");
       return;
     }
-    // If all validations pass, you can proceed to save the changes
-    // For now, let's just log the selected professional
-    alert("Saving changes...");
 
-    // You can navigate to another page here after saving
-    // navigate("/some-page");
+    try {
+      // Update the employer data in the backend
+      await axios.put(
+        `http://localhost:8000/api/employers/${id}/`,
+        selectedEmployer
+      );
+      alert("Employer updated successfully!");
+    } catch (error) {
+      console.error("Error updating employer:", error);
+      alert("Failed to update employer. Please try again.");
+    }
   };
 
   return (
@@ -151,13 +174,26 @@ const EmployerList = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="pr-2">Contact Person:</td>
+                  <td className="pr-2">First Name:</td>
                   <td>
                     <input
                       type="text"
-                      value={selectedEmployer.contactPerson}
+                      value={selectedEmployer.firstName}
                       onChange={(e) =>
-                        handleInputChange("contactPerson", e.target.value)
+                        handleInputChange("firstName", e.target.value)
+                      }
+                      className="w-full p-2 bg-gray-200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="pr-2">Last Name:</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={selectedEmployer.lastName}
+                      onChange={(e) =>
+                        handleInputChange("lastName", e.target.value)
                       }
                       className="w-full p-2 bg-gray-200"
                     />
@@ -215,19 +251,6 @@ const EmployerList = () => {
                     />
                   </td>
                 </tr>
-                <tr>
-                  <td className="pr-2">Description:</td>
-                  <td>
-                    <input
-                      type="text"
-                      value={selectedEmployer.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      className="w-full p-2 bg-gray-200 resize-none"
-                    />
-                  </td>
-                </tr>
               </tbody>
             </table>
             <div className="absolute bottom-4 right-4 space-x-4">
@@ -244,5 +267,4 @@ const EmployerList = () => {
     </div>
   );
 };
-
 export default EmployerList;

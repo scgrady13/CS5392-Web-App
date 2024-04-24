@@ -1,142 +1,115 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-type Employer = {
+type EmployerRegistration = {
   id: number;
-  firstName: string;
-  lastName: string;
-  companyName: string;
-  username: string;
-  contactInformation: string;
-  mailingAddress: string;
+  user_name: string;
+  company_name: string;
+  street_address: string;
+  city: string;
+  state: string;
+  zip: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
 };
-
-const employers: Employer[] = [
-  {
-    id: 2,
-    firstName: "Employer",
-    lastName: "B",
-    companyName: "Example Company B",
-    username: "employer_b",
-    contactInformation: "(456) 789-0123 | employerB@gmail.com",
-    mailingAddress: "456 Example Ave, Town, Country",
-  },
-  {
-    id: 3,
-    firstName: "Employer",
-    lastName: "C",
-    companyName: "Example Company C",
-    username: "employer_c",
-    contactInformation: "(789) 012-3456 | employerC@gmail.com",
-    mailingAddress: "789 Example Blvd, Village, Country",
-  },
-  {
-    id: 4,
-    firstName: "Employer",
-    lastName: "D",
-    companyName: "Example Company D",
-    username: "employer_d",
-    contactInformation: "(012) 345-6789 | employerD@gmail.com",
-    mailingAddress: "012 Example Rd, District, Country",
-  },
-  {
-    id: 5,
-    firstName: "Employer",
-    lastName: "E",
-    companyName: "Example Company E",
-    username: "employer_e",
-    contactInformation: "(234) 567-8901 | employerE@gmail.com",
-    mailingAddress: "234 Example Ln, City, Country",
-  },
-  {
-    id: 6,
-    firstName: "Employer",
-    lastName: "F",
-    companyName: "Example Company F",
-    username: "employer_f",
-    contactInformation: "(567) 890-1234 | employerF@gmail.com",
-    mailingAddress: "567 Example Ct, Town, Country",
-  },
-  {
-    id: 7,
-    firstName: "Employer",
-    lastName: "G",
-    companyName: "Example Company G",
-    username: "employer_g",
-    contactInformation: "(890) 123-4567 | employerG@gmail.com",
-    mailingAddress: "890 Example Pl, Village, Country",
-  },
-  {
-    id: 8,
-    firstName: "Employer",
-    lastName: "H",
-    companyName: "Example Company H",
-    username: "employer_h",
-    contactInformation: "(123) 456-7890 | employerH@gmail.com",
-    mailingAddress: "123 Example Rd, District, Country",
-  },
-  {
-    id: 9,
-    firstName: "Employer",
-    lastName: "I",
-    companyName: "Example Company I",
-    username: "employer_i",
-    contactInformation: "(456) 789-0123 | employerI@gmail.com",
-    mailingAddress: "456 Example Ln, City, Country",
-  },
-  {
-    id: 10,
-    firstName: "Employer",
-    lastName: "J",
-    companyName: "Example Company J",
-    username: "employer_j",
-    contactInformation: "(789) 012-3456 | employerJ@gmail.com",
-    mailingAddress: "789 Example Ave, Town, Country",
-  },
-];
-
 
 const EmployerRequest = () => {
   const [currentEmployerIndex, setCurrentEmployerIndex] = useState(0);
+  const [employers, setEmployers] = useState<EmployerRegistration[]>([]);
   const [message, setMessage] = useState("");
 
-  const currentEmployer = employers[currentEmployerIndex];
-
-  const handleAccept = () => {
-    setMessage("Employer successfully accepted.");
-    setTimeout(() => {
-      setMessage("");
-      if (currentEmployerIndex < employers.length - 1) {
-        setCurrentEmployerIndex(currentEmployerIndex + 1);
-      } else {
-        setCurrentEmployerIndex(0);
+  useEffect(() => {
+    const fetchEmployers = async () => {
+      try {
+        const response = await axios.get<EmployerRegistration[]>(
+          "http://localhost:8000/api/employer-registrations/"
+        );
+        setEmployers(response.data);
+        console.log("Employers data:", response.data);
+      } catch (error) {
+        console.error("Error fetching employers:", error);
       }
-    }, 2000);
+    };
+
+    fetchEmployers();
+  }, []);
+
+  const currentEmployer: EmployerRegistration | undefined =
+    employers[currentEmployerIndex];
+
+  const handleAccept = async () => {
+    try {
+      // Restructure the data as per the server-side requirements
+      const employerData = {
+        company_name: currentEmployer.company_name,
+        street_address: currentEmployer.street_address,
+        city: currentEmployer.city,
+        state: currentEmployer.state,
+        zip: currentEmployer.zip,
+        first_name: currentEmployer.first_name,
+        last_name: currentEmployer.last_name,
+        email: currentEmployer.email,
+        phone: currentEmployer.phone,
+        // Add any other required fields
+      };
+
+      // Move the current employer to the employers table
+      await axios.post("http://localhost:8000/api/employers/", employerData);
+
+      // Delete the current employer from the employer registration table
+      await axios.delete(
+        `http://localhost:8000/api/employer-registrations/${currentEmployer.id}/`
+      );
+
+      setMessage("Employer successfully accepted.");
+      setTimeout(() => {
+        setMessage("");
+        if (currentEmployerIndex < employers.length - 1) {
+          setCurrentEmployerIndex(currentEmployerIndex + 1);
+        } else {
+          setCurrentEmployerIndex(0);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error handling employer:", error);
+    }
   };
 
-  const handleDecline = () => {
-    setMessage("Employer successfully declined.");
-    setTimeout(() => {
-      setMessage("");
-      if (currentEmployerIndex < employers.length - 1) {
-        setCurrentEmployerIndex(currentEmployerIndex + 1);
-      } else {
-        setCurrentEmployerIndex(0);
-      }
-    }, 2000);
+  const handleDecline = async () => {
+    try {
+      // Delete the current employer from the employer registration table
+      await axios.delete(
+        `http://localhost:8000/api/employer-registrations/${currentEmployer.id}/`
+      );
+
+      setMessage("Employer successfully declined.");
+      setTimeout(() => {
+        setMessage("");
+        if (currentEmployerIndex < employers.length - 1) {
+          setCurrentEmployerIndex(currentEmployerIndex + 1);
+        } else {
+          setCurrentEmployerIndex(0);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error handling employer:", error);
+    }
   };
 
   return (
-    <div className="container h-screen flex justify-center items-start">
+    <div className="employer-info text-center w-full">
       {currentEmployer && (
-        <div className="employer-info text-center w-full">
-         <table className="w-full">
+        <div>
+          <table className="w-full">
             <tbody>
               <tr>
                 <td className="p-3">First Name:</td>
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.firstName}
+                    value={currentEmployer.first_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -147,7 +120,7 @@ const EmployerRequest = () => {
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.lastName}
+                    value={currentEmployer.last_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -158,7 +131,7 @@ const EmployerRequest = () => {
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.username}
+                    value={currentEmployer.user_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -169,7 +142,7 @@ const EmployerRequest = () => {
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.contactInformation}
+                    value={currentEmployer.phone}
                     readOnly
                     className="w-full p-2 bg-gray-500 resize-none"
                   />
@@ -180,7 +153,7 @@ const EmployerRequest = () => {
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.companyName}
+                    value={currentEmployer.company_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -190,7 +163,7 @@ const EmployerRequest = () => {
                 <td className="p-3">Mailing Address:</td>
                 <td>
                   <textarea
-                    value={currentEmployer.mailingAddress}
+                    value={`${currentEmployer.street_address}, ${currentEmployer.city}, ${currentEmployer.state} ${currentEmployer.zip}`}
                     readOnly
                     className="w-full p-2 bg-gray-500 resize-none"
                     rows={2}
@@ -200,10 +173,16 @@ const EmployerRequest = () => {
             </tbody>
           </table>
           <div className="button-container mt-4">
-            <button onClick={handleAccept} className="bg-blue-600 text-white px-6 py-3 rounded-lg mr-4">
+            <button
+              onClick={handleAccept}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg mr-4"
+            >
               Accept
             </button>
-            <button onClick={handleDecline} className="bg-blue-600 text-white px-6 py-3 rounded-lg">
+            <button
+              onClick={handleDecline}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg"
+            >
               Decline
             </button>
           </div>
