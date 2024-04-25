@@ -1,120 +1,280 @@
 import React, { useState } from "react";
-import DegreeForm from "../Components/SignUpComponents/DegreeForm.tsx";
-import PersonalInfoForm from "../Components/SignUpComponents/PersonalInfoForm.tsx";
-import UserForm from "../Components/SignUpComponents/UserForm.tsx";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const SignUp = () => {
-
+const SignUpProfessional = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const totalSteps = 3;
-  const [isCurrentFormValid, setIsCurrentFormValid] = useState(true);
 
-  const nextStep = () => {
-    if (step < totalSteps && isCurrentFormValid) {
-      setStep(step + 1);
-    } else {
-      alert("Please complete all fields correctly before proceeding.");
-      console.error("Form is invalid!");
-    }
-    console.log(step);
+  // const [formData, setFormData] = useState({
+  //   firstName: "",
+  //   lastName: "",
+  //   streetAddress: "",
+  //   city: "",
+  //   state: "",
+  //   zipCode: "",
+  //   phone: "",
+  //   email: "",
+  //   institutionName: "",
+  //   degreeName: "",
+  //   category: "",
+  //   keywords: "",
+  // });
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    institution_name: "",
+    streetAddress: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    degree_name: "",
+    month_complete: "",
+    year_complete: "",
+    category: "",
+    keywords: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const previousStep = () => {
-    if (step > 1) setStep(step - 1);
-  };
-
-  const renderStepContent = (step) => {
-    const commonProps = {
-      onValidityChange: setIsCurrentFormValid, // This prop is passed to each form
-    };
-    switch (step) {
-      case 1:
-        return <UserForm {...commonProps} />;
-      case 2:
-        return <PersonalInfoForm {...commonProps} />;
-      case 3:
-        return <DegreeForm {...commonProps} />;
-      default:
-        return <UserForm {...commonProps} />;
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isCurrentFormValid) {
-      navigate("/professional");
-    } else {
-      alert("Please complete all fields correctly before submitting.");
-      console.error("Form is invalid!");  
+
+    // Check if any field is empty
+    for (const key in formData) {
+      if (!formData[key]) {
+        alert("Please fill in all fields.");
+        console.error("Form field is empty:", key);
+        return;
+      }
+    }
+
+    // Check phone number format
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      alert("Please enter a valid 10-digit phone number.");
+      console.error("Invalid phone number format.");
+      return;
+    }
+
+    // Check ZIP code format
+    const zipRegex = /^\d{5}$/;
+    if (!zipRegex.test(formData.zipCode)) {
+      alert("Please enter a valid 5-digit ZIP code.");
+      console.error("Invalid ZIP code format.");
+      return;
+    }
+
+    // try {
+    //   const professionalRegistrationData = {
+    //     user_name: `${formData.firstName} ${formData.lastName}`,
+    //     first_name: formData.firstName,
+    //     last_name: formData.lastName,
+    //     email_address: formData.email,
+    //     degree_name: formData.degreeName,
+    //     institution_name: formData.institutionName,
+    //     // completion_date: formData.completionDate.split("-").join("-"),
+    //     city: formData.city,
+    //     state: formData.state,
+    //     zip: formData.zipCode,
+    //     category: formData.category,
+    //     keywords: formData.keywords,
+    //     phone_number: formData.phone,
+    //   };
+    try {
+      const professionalRegistrationData = {
+        user_name: `${formData.firstName} ${formData.lastName}`, // You can modify this as per your requirements
+        institution_name: formData.institution_name,
+        street_address: formData.streetAddress,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zipCode,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        degree_name: formData.degree_name,
+        month_complete: formData.month_complete,
+        year_complete: formData.year_complete,
+        category: formData.category,
+        keywords: formData.keywords,
+      };
+      const response = await axios.post(
+        "http://localhost:8000/api/professional-registrations/",
+        professionalRegistrationData
+      );
+
+      console.log("Registration successful:", response.data);
+      navigate("/professional"); // Navigate to the professional page on successful submission
+    } catch (error) {
+      console.error("Registration failed:", error);
     }
   };
 
   return (
-    <div className="dark:bg-slate-900 bg-gray-100 min-h-screen w-full flex flex-col items-center py-16">
-      <main className="w-full max-w-md mx-auto p-6">
-        <div className="mt-7 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-4 sm:p-7">
-            <div className="text-center">
-              <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
-                Sign up
-              </h1>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?
-                <a
-                  className="text-blue-600 decoration-2 hover:underline font-medium dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-                  href="../signin"
-                >
-                  &nbsp;Sign in here
-                </a>
-              </p>
-            </div>
-            <div className="mt-3">{renderStepContent(step)}</div>
-            <div className="flex justify-between items-center mt-4">
-              {step > 1 && (
-                <button
-                  onClick={previousStep}
-                  className="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-gray-200 text-gray-800 hover:bg-gray-300"
-                >
-                  Back
-                </button>
-              )}
-              <div className="flex justify-end w-full">
-                {step < totalSteps ? (
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    onClick={handleSubmit}
-                    className="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700"
-                  >
-                    Submit
-                  </button>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-center gap-2 mt-4">
-              {Array.from({ length: totalSteps }, (_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-2 rounded-full ${
-                    i + 1 <= step ? "bg-blue-600" : "bg-gray-200"
-                  }`}
-                ></div>
-              ))}
-            </div>
-          </div>
+    <div className="min-h-screen flex justify-center items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8 grid grid-cols-2 gap-4"
+      >
+        <h2 className="text-2xl font-bold text-center col-span-2 mb-8">
+          Professional Register
+        </h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={formData.firstName}
+            onChange={handleChange}
+            className="input"
+          />
         </div>
-      </main>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={formData.lastName}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="institution_name"
+            placeholder="Institution Name"
+            value={formData.institution_name}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+
+        <div className="mb-4">
+          <input
+            type="text"
+            name="degree_name"
+            placeholder="Degree Name"
+            value={formData.degree_name}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="number"
+            name="month_complete"
+            placeholder="Month Complete"
+            value={formData.month_complete}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="number"
+            name="year_complete"
+            placeholder="Year Complete"
+            value={formData.year_complete}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="streetAddress"
+            placeholder="Street Address"
+            value={formData.streetAddress}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="city"
+            placeholder="City"
+            value={formData.city}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="state"
+            placeholder="State"
+            value={formData.state}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="zipCode"
+            placeholder="ZIP Code"
+            value={formData.zipCode}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={formData.category}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="keywords"
+            placeholder="Keywords"
+            value={formData.keywords}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Register
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
-
-export default SignUp;
+export default SignUpProfessional;

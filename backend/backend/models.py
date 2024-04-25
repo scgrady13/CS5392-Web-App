@@ -25,20 +25,20 @@ class Staff(models.Model):
 # ProfessionalRegistration model
 class ProfessionalRegistration(models.Model):
     user_name = models.CharField(max_length=255, default='default_name')
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email_address = models.EmailField()
-    degree_name = models.CharField(max_length=255)
     institution_name = models.CharField(max_length=255)
-    month_complete = models.IntegerField()
-    year_complete = models.IntegerField()
     street_address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     zip = models.CharField(max_length=10)
-    qualifications = models.TextField(default=1)
-    phone_number = models.CharField(max_length=20)
-
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    degree_name = models.CharField(max_length=255, default='Unknown')
+    month_complete = models.IntegerField(default=1)
+    year_complete = models.IntegerField(default=2000)
+    category = models.CharField(max_length=255, default='')
+    keywords = models.CharField(max_length=255, default='')
     class Meta:
         db_table = 'backend_professionalregistration'
 

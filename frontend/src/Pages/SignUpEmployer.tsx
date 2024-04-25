@@ -1,91 +1,189 @@
-import React, { useState } from 'react';
-import ContactForm from '../Components/SignUpComponents/ContactForm.tsx';
-import CompanyForm from '../Components/SignUpComponents/CompanyForm.tsx';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUpEmployer = () => {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(1);
-  const totalSteps = 2;
-  const [isCurrentFormValid, setIsCurrentFormValid] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    companyName: "",
+    streetAddress: "",
+    city: "",
+    state: "",
+    zipCode: "",
+  });
 
-  const nextStep = () => {
-    if (step < totalSteps && isCurrentFormValid) {
-      setStep(step + 1);
-    } else {
-      alert("Please complete all fields correctly before proceeding.");
-      console.error("Form is invalid!");
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const previousStep = () => {
-    if (step > 1) setStep(step - 1);
-  };
-
-  const renderStepContent = (step) => {
-    const commonProps = {
-      onValidityChange: setIsCurrentFormValid, // This prop is passed to each form to handle validity change
-    };
-    switch (step) {
-      case 1:
-        return <ContactForm {...commonProps} />;
-      case 2:
-        return <CompanyForm {...commonProps} />;
-      default:
-        return <ContactForm {...commonProps} />;
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isCurrentFormValid) {
-      // Handle form submission logic here, such as sending data to a server
-      console.log("Form submitted");
+
+    // Check if any field is empty
+    for (const key in formData) {
+      if (!formData[key]) {
+        alert("Please fill in all fields.");
+        console.error("Form field is empty:", key);
+        return;
+      }
+    }
+
+    // Check phone number format
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      alert("Please enter a valid 10-digit phone number.");
+      console.error("Invalid phone number format.");
+      return;
+    }
+
+    // Check ZIP code format
+    const zipRegex = /^\d{5}$/;
+    if (!zipRegex.test(formData.zipCode)) {
+      alert("Please enter a valid 5-digit ZIP code.");
+      console.error("Invalid ZIP code format.");
+      return;
+    }
+
+    try {
+      const employerRegistrationData = {
+        user_name: `${formData.firstName} ${formData.lastName}`, // You can modify this as per your requirements
+        company_name: formData.companyName,
+        street_address: formData.streetAddress,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zipCode,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+      };
+
+      const response = await axios.post(
+        "http://localhost:8000/api/employer-registrations/",
+        employerRegistrationData
+      );
+
+      console.log("Registration successful:", response.data);
       navigate("/employer"); // Navigate to the employer page on successful submission
-    } else {
-      alert("Please complete all fields correctly before submitting.");
-      console.error("Form is invalid!");
+    } catch (error) {
+      console.error("Registration failed:", error);
     }
   };
 
   return (
-    <div className="dark:bg-slate-900 bg-gray-100 min-h-screen w-full flex flex-col items-center py-16">
-      <main className="w-full max-w-md mx-auto p-6">
-        <div className="mt-7 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
-          <div className="p-4 sm:p-7">
-            <div className="text-center">
-              <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">Employer Sign Up</h1>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?
-                <a className="text-blue-600 decoration-2 hover:underline font-medium dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" href="../signin">
-                  &nbsp;Sign in here
-                </a>
-              </p>
-            </div>
-            <div className="mt-3">
-              {renderStepContent(step)}
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              {step > 1 && (
-                <button onClick={previousStep} className="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-gray-200 text-gray-800 hover:bg-gray-300">Back</button>
-              )}
-              <div className="flex justify-end w-full">
-                {step < totalSteps ? (
-                  <button type="button" onClick={nextStep} className="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">Next</button>
-                ) : (
-                  <button type="submit" onClick={handleSubmit} className="py-2 px-4 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">Submit</button>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-center gap-2 mt-4">
-              {Array.from({ length: totalSteps }, (_, i) => (
-                <div key={i} className={`h-2 w-2 rounded-full ${i + 1 <= step ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
-              ))}
-            </div>
-          </div>
+    <div className="min-h-screen flex justify-center items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8"
+      >
+        <h2 className="text-2xl font-bold text-center mb-8">
+          Employer Register
+        </h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={formData.firstName}
+            onChange={handleChange}
+            className="input"
+          />
         </div>
-      </main>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={formData.lastName}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="companyName"
+            placeholder="Company Name"
+            value={formData.companyName}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="streetAddress"
+            placeholder="Street Address"
+            value={formData.streetAddress}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="city"
+            placeholder="City"
+            value={formData.city}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="state"
+            placeholder="State"
+            value={formData.state}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="text"
+            name="zipCode"
+            placeholder="ZIP Code"
+            value={formData.zipCode}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Register
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

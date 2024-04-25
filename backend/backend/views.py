@@ -28,6 +28,7 @@ class EmployerViewSet(viewsets.ModelViewSet):
 class JobViewSet(viewsets.ModelViewSet):
     serializer_class = JobSerializer
     queryset = Job.objects.all()
+    
 class CreateProfRequestViewSet(viewsets.ModelViewSet):
     queryset = CreateProfRequest.objects.all()
     serializer_class = CreateProfRequestSerializer

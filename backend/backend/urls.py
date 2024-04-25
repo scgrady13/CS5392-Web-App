@@ -5,7 +5,9 @@ from .views import *
 
 router = DefaultRouter()
 router.register(r'professional-registrations', ProfessionalRegistrationViewSet, basename='professional-registration')
+
 router.register(r'employer-registrations', EmployerRegistrationViewSet, basename='employer-registration')
+
 router.register(r'employers', EmployerViewSet, basename='employer')
 router.register(r'professionals', ProfessionalViewSet, basename='professional')
 urlpatterns = [
