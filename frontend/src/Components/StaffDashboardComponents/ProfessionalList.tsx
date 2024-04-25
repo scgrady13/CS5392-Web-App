@@ -3,13 +3,21 @@ import axios from "axios";
 
 type Professional = {
   id: number;
-  fullName: string;
-  username: string;
+  user_name: string;
+  institution_name: string;
+  street_address: string;
+  city: string;
+  state: string;
+  zip: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
-  mailingAddress: string;
-  degreeDetails: string;
-  qualifications: string;
+  degree_name: string;
+  month_complete: number;
+  year_complete: number;
+  category: string;
+  keywords: string;
 };
 
 const ProfessionalList = () => {
@@ -21,11 +29,11 @@ const ProfessionalList = () => {
   useEffect(() => {
     const fetchProfessionals = async () => {
       try {
-        const response = await axios.get<any[]>(
+        const response = await axios.get<Professional[]>(
           "http://localhost:8000/api/professionals/"
         );
-        const transformedProfessionals = transformProfessionals(response.data);
-        setProfessionals(transformedProfessionals);
+        setProfessionals(response.data);
+        console.log("Professionals data:", response.data);
       } catch (error) {
         console.error("Error fetching professionals:", error);
       }
@@ -34,25 +42,14 @@ const ProfessionalList = () => {
     fetchProfessionals();
   }, []);
 
-  const transformProfessionals = (data: any[]): Professional[] => {
-    return data.map((item) => ({
-      id: item.id,
-      fullName: `${item.first_name} ${item.last_name}`,
-      username: `${item.first_name.toLowerCase()}_${item.last_name.toLowerCase()}`,
-      email: item.email_address,
-      phone: item.phone_number,
-      mailingAddress: `${item.street_address}, ${item.city}, ${item.state} ${item.zip}`,
-      degreeDetails: `${item.degree_name}, ${item.institution_name}, ${item.month_complete}/${item.year_complete}`,
-      qualifications: item.qualifications, // You can set a default value or derive it from the response data
-    }));
-  };
-
   const handleProfessionalClick = (professional: Professional) => {
     setSelectedProfessional(professional);
   };
 
   const filteredProfessionals = professionals.filter((professional) =>
-    professional.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    `${professional.first_name} ${professional.last_name}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
   const handleInputChange = (field: keyof Professional, value: string) => {
@@ -67,35 +64,45 @@ const ProfessionalList = () => {
       return;
     }
 
-    const { id, fullName, email, phone, mailingAddress, qualifications } =
-      selectedProfessional;
+    const {
+      id,
+      user_name,
+      institution_name,
+      street_address,
+      city,
+      state,
+      zip,
+      first_name,
+      last_name,
+      email,
+      phone,
+      degree_name,
+      month_complete,
+      year_complete,
+      category,
+      keywords,
+    } = selectedProfessional;
 
-    if (!fullName.trim()) {
-      alert("Full Name cannot be empty");
+    if (!first_name.trim()) {
+      alert("First Name cannot be empty");
       return;
     }
-    if (!email.trim().match(/^[\w-]+(\.[\w-]+)*@gmail\.com$/)) {
-      alert(
-        "Email address must be in the correct format (e.g., example@gmail.com)"
-      );
+    if (!last_name.trim()) {
+      alert("Last Name cannot be empty");
       return;
     }
-    if (!phone.trim().match(/^\(\d{3}\) \d{3}-\d{4}$/)) {
-      alert("Phone number must be in the format (XXX) XXX-XXXX");
+    if (!email.trim().endsWith("@gmail.com")) {
+      alert("Email address must end with @gmail.com");
       return;
     }
-    if (!mailingAddress.trim()) {
-      alert("Mailing Address cannot be empty");
-      return;
-    }
-    if (!qualifications.trim()) {
-      alert("Qualifications cannot be empty");
+    if (!/^\d{10,}$/.test(phone.replace(/\D/g, ""))) {
+      alert("Phone number must contain at least 10 digits");
       return;
     }
 
     try {
       // Update the professional data in the backend
-      await axios.put(
+      await axios.patch(
         `http://localhost:8000/api/professionals/${id}/`,
         selectedProfessional
       );
@@ -124,17 +131,17 @@ const ProfessionalList = () => {
               onClick={() => handleProfessionalClick(professional)}
             >
               <h3 className="text-black font-extrabold">
-                {professional.fullName}
+                {`${professional.first_name} ${professional.last_name}`}
               </h3>
             </li>
           ))}
         </ul>
       </div>
-      <div className="w-2/3 ">
+      <div className="w-2/3">
         {selectedProfessional && (
           <div className="p-3">
             <h2 className="text-2xl font-bold mb-2 text-center">
-              {selectedProfessional.fullName}
+              {`${selectedProfessional.first_name} ${selectedProfessional.last_name}`}
             </h2>
             <table className="w-full">
               <tbody>
@@ -143,20 +150,46 @@ const ProfessionalList = () => {
                   <td>
                     <input
                       type="text"
-                      value={selectedProfessional.username}
+                      value={selectedProfessional.user_name}
                       readOnly
                       className="w-full p-2 bg-gray-500"
                     />
                   </td>
                 </tr>
                 <tr>
-                  <td className="pr-2">Full Name:</td>
+                  <td className="pr-2">First Name:</td>
                   <td>
                     <input
                       type="text"
-                      value={selectedProfessional.fullName}
+                      value={selectedProfessional.first_name}
                       onChange={(e) =>
-                        handleInputChange("fullName", e.target.value)
+                        handleInputChange("first_name", e.target.value)
+                      }
+                      className="w-full p-2 bg-gray-200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="pr-2">Last Name:</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={selectedProfessional.last_name}
+                      onChange={(e) =>
+                        handleInputChange("last_name", e.target.value)
+                      }
+                      className="w-full p-2 bg-gray-200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="pr-2">Contact Number:</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={selectedProfessional.phone}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
                       }
                       className="w-full p-2 bg-gray-200"
                     />
@@ -176,52 +209,78 @@ const ProfessionalList = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="pr-2">Phone:</td>
-                  <td>
-                    <input
-                      type="text"
-                      value={selectedProfessional.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                      className="w-full p-2 bg-gray-200"
-                    />
-                  </td>
-                </tr>
-                <tr>
                   <td className="pr-2">Mailing Address:</td>
                   <td>
                     <input
                       type="text"
-                      value={selectedProfessional.mailingAddress}
+                      value={`${selectedProfessional.street_address}, ${selectedProfessional.city}, ${selectedProfessional.state} ${selectedProfessional.zip}`}
                       onChange={(e) =>
-                        handleInputChange("mailingAddress", e.target.value)
+                        handleInputChange("street_address", e.target.value)
                       }
                       className="w-full p-2 bg-gray-200"
                     />
                   </td>
                 </tr>
                 <tr>
-                  <td className="pr-2">Degree Details:</td>
+                  <td className="pr-2">Degree:</td>
                   <td>
                     <input
                       type="text"
-                      value={selectedProfessional.degreeDetails}
+                      value={selectedProfessional.degree_name}
                       onChange={(e) =>
-                        handleInputChange("degreeDetails", e.target.value)
+                        handleInputChange("degree_name", e.target.value)
                       }
                       className="w-full p-2 bg-gray-200"
                     />
                   </td>
                 </tr>
                 <tr>
-                  <td className="pr-2">Qualifications:</td>
+                  <td className="pr-2">Completion Date:</td>
                   <td>
                     <input
                       type="text"
-                      value={selectedProfessional.qualifications}
+                      value={`${selectedProfessional.month_complete}/${selectedProfessional.year_complete}`}
                       onChange={(e) =>
-                        handleInputChange("degreeDetails", e.target.value)
+                        handleInputChange("month_complete", e.target.value)
+                      }
+                      className="w-full p-2 bg-gray-200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="pr-2">Institution:</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={selectedProfessional.institution_name}
+                      onChange={(e) =>
+                        handleInputChange("institution_name", e.target.value)
+                      }
+                      className="w-full p-2 bg-gray-200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="pr-2">Category:</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={selectedProfessional.category}
+                      onChange={(e) =>
+                        handleInputChange("category", e.target.value)
+                      }
+                      className="w-full p-2 bg-gray-200"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="pr-2">Keywords:</td>
+                  <td>
+                    <input
+                      type="text"
+                      value={selectedProfessional.keywords}
+                      onChange={(e) =>
+                        handleInputChange("keywords", e.target.value)
                       }
                       className="w-full p-2 bg-gray-200"
                     />

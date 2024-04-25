@@ -85,7 +85,10 @@ const EmployerList = () => {
     const {
       id,
       companyName,
-      mailingAddress,
+      streetAddress,
+      city,
+      state,
+      zip,
       firstName,
       lastName,
       emailAddress,
@@ -96,8 +99,20 @@ const EmployerList = () => {
       alert("Company Name cannot be empty");
       return;
     }
-    if (!mailingAddress.trim()) {
-      alert("Mailing Address cannot be empty");
+    if (!streetAddress.trim()) {
+      alert("Street Address cannot be empty");
+      return;
+    }
+    if (!city.trim()) {
+      alert("City cannot be empty");
+      return;
+    }
+    if (!state.trim()) {
+      alert("State cannot be empty");
+      return;
+    }
+    if (!zip.trim()) {
+      alert("ZIP Code cannot be empty");
       return;
     }
     if (!firstName.trim()) {
@@ -119,10 +134,17 @@ const EmployerList = () => {
 
     try {
       // Update the employer data in the backend
-      await axios.put(
-        `http://localhost:8000/api/employers/${id}/`,
-        selectedEmployer
-      );
+      await axios.patch(`http://localhost:8000/api/employers/${id}/`, {
+        company_name: companyName,
+        street_address: streetAddress,
+        city: city,
+        state: state,
+        zip: zip,
+        first_name: firstName,
+        last_name: lastName,
+        email: emailAddress,
+        phone: contactNumber,
+      });
       alert("Employer updated successfully!");
     } catch (error) {
       console.error("Error updating employer:", error);

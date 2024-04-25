@@ -43,7 +43,10 @@ class EmployerRegistrationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
+class EmployerProfileDeleteRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployerProfileDeleteRequest
+        fields = '__all__'
 
 class EmployerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,7 +81,4 @@ class ProfessionalProfileDeleteRequestSerializer(serializers.ModelSerializer):
         model = ProfessionalProfileDeleteRequest
         fields = '__all__'
 
-class EmployerProfileDeleteRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EmployerProfileDeleteRequest
-        fields = '__all__'
+

@@ -1,142 +1,75 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 type Employer = {
   id: number;
-  firstName: string;
-  lastName: string;
-  companyName: string;
-  username: string;
-  contactInformation: string;
-  mailingAddress: string;
+  company_name: string;
+  street_address: string;
+  city: string;
+  state: string;
+  zip: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
 };
 
-const employers: Employer[] = [
-  {
-    id: 2,
-    firstName: "Employer",
-    lastName: "B",
-    companyName: "Example Company B",
-    username: "employer_b",
-    contactInformation: "(456) 789-0123 | employerB@gmail.com",
-    mailingAddress: "456 Example Ave, Town, Country",
-  },
-  {
-    id: 3,
-    firstName: "Employer",
-    lastName: "C",
-    companyName: "Example Company C",
-    username: "employer_c",
-    contactInformation: "(789) 012-3456 | employerC@gmail.com",
-    mailingAddress: "789 Example Blvd, Village, Country",
-  },
-  {
-    id: 4,
-    firstName: "Employer",
-    lastName: "D",
-    companyName: "Example Company D",
-    username: "employer_d",
-    contactInformation: "(012) 345-6789 | employerD@gmail.com",
-    mailingAddress: "012 Example Rd, District, Country",
-  },
-  {
-    id: 5,
-    firstName: "Employer",
-    lastName: "E",
-    companyName: "Example Company E",
-    username: "employer_e",
-    contactInformation: "(234) 567-8901 | employerE@gmail.com",
-    mailingAddress: "234 Example Ln, City, Country",
-  },
-  {
-    id: 6,
-    firstName: "Employer",
-    lastName: "F",
-    companyName: "Example Company F",
-    username: "employer_f",
-    contactInformation: "(567) 890-1234 | employerF@gmail.com",
-    mailingAddress: "567 Example Ct, Town, Country",
-  },
-  {
-    id: 7,
-    firstName: "Employer",
-    lastName: "G",
-    companyName: "Example Company G",
-    username: "employer_g",
-    contactInformation: "(890) 123-4567 | employerG@gmail.com",
-    mailingAddress: "890 Example Pl, Village, Country",
-  },
-  {
-    id: 8,
-    firstName: "Employer",
-    lastName: "H",
-    companyName: "Example Company H",
-    username: "employer_h",
-    contactInformation: "(123) 456-7890 | employerH@gmail.com",
-    mailingAddress: "123 Example Rd, District, Country",
-  },
-  {
-    id: 9,
-    firstName: "Employer",
-    lastName: "I",
-    companyName: "Example Company I",
-    username: "employer_i",
-    contactInformation: "(456) 789-0123 | employerI@gmail.com",
-    mailingAddress: "456 Example Ln, City, Country",
-  },
-  {
-    id: 10,
-    firstName: "Employer",
-    lastName: "J",
-    companyName: "Example Company J",
-    username: "employer_j",
-    contactInformation: "(789) 012-3456 | employerJ@gmail.com",
-    mailingAddress: "789 Example Ave, Town, Country",
-  },
-];
-
-
 const EmployerDeleteRequest = () => {
+  const [employers, setEmployers] = useState<Employer[]>([]);
   const [currentEmployerIndex, setCurrentEmployerIndex] = useState(0);
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    const fetchEmployers = async () => {
+      try {
+        const response = await axios.get<Employer[]>(
+          "http://localhost:8000/api/employers-delete/"
+        );
+        setEmployers(response.data);
+      } catch (error) {
+        console.error("Error fetching employers:", error);
+      }
+    };
+
+    fetchEmployers();
+  }, []);
+
   const currentEmployer = employers[currentEmployerIndex];
 
-  const handleAccept = () => {
-    setMessage("Employer successfully accepted.");
-    setTimeout(() => {
-      setMessage("");
-      if (currentEmployerIndex < employers.length - 1) {
-        setCurrentEmployerIndex(currentEmployerIndex + 1);
-      } else {
-        setCurrentEmployerIndex(0);
-      }
-    }, 2000);
-  };
+  const handleDecline = async () => {
+    try {
+      if (!currentEmployer) return;
+      // Delete the current employer from the EmployerProfileDeleteRequest table
+      await axios.delete(
+        `http://localhost:8000/api/employers-delete/${currentEmployer.id}/`
+      );
 
-  const handleDecline = () => {
-    setMessage("Employer successfully deleted.");
-    setTimeout(() => {
-      setMessage("");
-      if (currentEmployerIndex < employers.length - 1) {
-        setCurrentEmployerIndex(currentEmployerIndex + 1);
-      } else {
-        setCurrentEmployerIndex(0);
-      }
-    }, 2000);
+      setMessage("Employer successfully deleted.");
+      setTimeout(() => {
+        setMessage("");
+        if (currentEmployerIndex < employers.length - 1) {
+          setCurrentEmployerIndex(currentEmployerIndex + 1);
+        } else {
+          setCurrentEmployerIndex(0);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error("Error handling employer:", error);
+    }
   };
 
   return (
     <div className="container h-screen flex justify-center items-start">
-      {currentEmployer && (
+      {currentEmployer ? (
         <div className="employer-info text-center w-full">
-         <table className="w-full">
+          <table className="w-full">
             <tbody>
               <tr>
                 <td className="p-3">First Name:</td>
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.firstName}
+                    value={currentEmployer.first_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -147,31 +80,9 @@ const EmployerDeleteRequest = () => {
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.lastName}
+                    value={currentEmployer.last_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Preferred Username:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentEmployer.username}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Contact Information:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentEmployer.contactInformation}
-                    readOnly
-                    className="w-full p-2 bg-gray-500 resize-none"
                   />
                 </td>
               </tr>
@@ -180,7 +91,7 @@ const EmployerDeleteRequest = () => {
                 <td>
                   <input
                     type="text"
-                    value={currentEmployer.companyName}
+                    value={currentEmployer.company_name}
                     readOnly
                     className="w-full p-2 bg-gray-500"
                   />
@@ -190,22 +101,39 @@ const EmployerDeleteRequest = () => {
                 <td className="p-3">Mailing Address:</td>
                 <td>
                   <textarea
-                    value={currentEmployer.mailingAddress}
+                    value={`${currentEmployer.street_address}, ${currentEmployer.city}, ${currentEmployer.state} ${currentEmployer.zip}`}
                     readOnly
                     className="w-full p-2 bg-gray-500 resize-none"
                     rows={2}
                   />
                 </td>
               </tr>
+              <tr>
+                <td className="p-3">Contact Information:</td>
+                <td>
+                  <input
+                    type="text"
+                    value={`${currentEmployer.phone} | ${currentEmployer.email}`}
+                    readOnly
+                    className="w-full p-2 bg-gray-500 resize-none"
+                  />
+                </td>
+              </tr>
             </tbody>
           </table>
           <div className="button-container mt-4">
-           
-            <button onClick={handleDecline} className="bg-blue-600 text-white px-6 py-3 rounded-lg">
+            <button
+              onClick={handleDecline}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg"
+            >
               Delete
             </button>
           </div>
           {message && <p className="font-bold mt-4 message">{message}</p>}
+        </div>
+      ) : (
+        <div className="text-center mt-20">
+          <h2 className="text-2xl font-bold">No Employer Delete Requests</h2>
         </div>
       )}
     </div>

@@ -4,19 +4,20 @@ import axios from "axios";
 type ProfessionalRegistration = {
   id: number;
   user_name: string;
-  first_name: string;
-  last_name: string;
-  email_address: string;
-  degree_name: string;
   institution_name: string;
-  month_complete: number;
-  year_complete: number;
   street_address: string;
   city: string;
   state: string;
   zip: string;
-  qualifications: string;
-  phone_number: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  degree_name: string;
+  month_complete: number;
+  year_complete: number;
+  category: string;
+  keywords: string;
 };
 
 const ProfessionalRequest = () => {
@@ -50,22 +51,21 @@ const ProfessionalRequest = () => {
       if (!currentProfessional) return;
       // Restructure the data as per the server-side requirements
       const professionalData = {
-        first_name: currentProfessional.first_name,
-        last_name: currentProfessional.last_name,
-        email_address: currentProfessional.email_address,
-        degree_name: currentProfessional.degree_name,
         institution_name: currentProfessional.institution_name,
-        month_complete: currentProfessional.month_complete,
-        year_complete: currentProfessional.year_complete,
         street_address: currentProfessional.street_address,
         city: currentProfessional.city,
         state: currentProfessional.state,
         zip: currentProfessional.zip,
-        qualifications: currentProfessional.qualifications,
-        phone_number: currentProfessional.phone_number,
-        // Add any other required fields
+        first_name: currentProfessional.first_name,
+        last_name: currentProfessional.last_name,
+        email: currentProfessional.email,
+        phone: currentProfessional.phone,
+        degree_name: currentProfessional.degree_name,
+        month_complete: currentProfessional.month_complete,
+        year_complete: currentProfessional.year_complete,
+        category: currentProfessional.category,
+        keywords: currentProfessional.keywords,
       };
-
       // Move the current professional to the professionals table
       await axios.post(
         "http://localhost:8000/api/professionals/",
@@ -116,122 +116,113 @@ const ProfessionalRequest = () => {
   return (
     <div className="professional-info text-center w-full">
       {currentProfessional && (
-        <div>
-          <table className="w-full">
-            <tbody>
-              <tr>
-                <td className="p-3">First Name:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.first_name}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Last Name:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.last_name}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Preferred Username:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.user_name}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Contact Information:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.phone_number}
-                    readOnly
-                    className="w-full p-2 bg-gray-500 resize-none"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Email:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.email_address}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Degree:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.degree_name}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Institution:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.institution_name}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Completion Date:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={`${currentProfessional.month_complete}/${currentProfessional.year_complete}`}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Mailing Address:</td>
-                <td>
-                  <textarea
-                    value={`${currentProfessional.street_address}, ${currentProfessional.city}, ${currentProfessional.state} ${currentProfessional.zip}`}
-                    readOnly
-                    className="w-full p-2 bg-gray-500 resize-none"
-                    rows={2}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3">Qualifications:</td>
-                <td>
-                  <input
-                    type="text"
-                    value={currentProfessional.qualifications}
-                    readOnly
-                    className="w-full p-2 bg-gray-500"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="button-container mt-4">
+        <div className="grid grid-cols-2 gap-4">
+          {/* First column */}
+          <div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.first_name}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">First Name</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.last_name}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Last Name</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.user_name}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Preferred Username</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.phone}
+                readOnly
+                className="w-full p-2 bg-gray-500 resize-none"
+              />
+              <label className="block text-left">Contact Information</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.email}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Email</label>
+            </div>
+          </div>
+          {/* Second column */}
+          <div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.degree_name}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Degree</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.institution_name}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Institution</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={`${currentProfessional.month_complete}/${currentProfessional.year_complete}`}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Completion Date</label>
+            </div>
+            <div className="mb-4">
+              <textarea
+                value={`${currentProfessional.street_address}, ${currentProfessional.city}, ${currentProfessional.state} ${currentProfessional.zip}`}
+                readOnly
+                className="w-full p-2 bg-gray-500 resize-none"
+                rows={2}
+              />
+              <label className="block text-left">Mailing Address</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.category}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Category</label>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={currentProfessional.keywords}
+                readOnly
+                className="w-full p-2 bg-gray-500"
+              />
+              <label className="block text-left">Keywords</label>
+            </div>
+          </div>
+          <div className="col-span-2 flex justify-center">
             <button
               onClick={handleAccept}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg mr-4"

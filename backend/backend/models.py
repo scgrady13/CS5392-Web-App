@@ -45,19 +45,21 @@ class ProfessionalRegistration(models.Model):
 # Professional model
 class Professional(models.Model):
     id = models.AutoField(primary_key=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email_address = models.EmailField()
-    degree_name = models.CharField(max_length=255)
+    user_name = models.CharField(max_length=255, default='default_name')
     institution_name = models.CharField(max_length=255)
-    month_complete = models.IntegerField()
-    year_complete = models.IntegerField()
     street_address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     zip = models.CharField(max_length=10)
-    qualifications = models.TextField()
-    phone_number = models.CharField(max_length=20)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    degree_name = models.CharField(max_length=255, default='Unknown')
+    month_complete = models.IntegerField(default=1)
+    year_complete = models.IntegerField(default=2000)
+    category = models.CharField(max_length=255, default='')
+    keywords = models.CharField(max_length=255, default='')
 
     class Meta:
         db_table = 'backend_professional'
@@ -137,16 +139,38 @@ class JobMatchingRequest(models.Model):
 
 # ProfessionalProfileDeleteRequest model
 class ProfessionalProfileDeleteRequest(models.Model):
-    request_id = models.AutoField(primary_key=True)
-    professional_id = models.CharField(max_length=10)
+    id = models.AutoField(primary_key=True)
+    user_name = models.CharField(max_length=255, default='default_name')
+    institution_name = models.CharField(max_length=255, default='')
+    street_address = models.CharField(max_length=255, default='')
+    city = models.CharField(max_length=255, default='')
+    state = models.CharField(max_length=255, default='')
+    zip = models.CharField(max_length=10, default='')
+    first_name = models.CharField(max_length=255, default='')
+    last_name = models.CharField(max_length=255, default='')
+    email = models.EmailField(default='')
+    phone = models.CharField(max_length=20, default='')
+    degree_name = models.CharField(max_length=255, default='Unknown')
+    month_complete = models.IntegerField(default=1)
+    year_complete = models.IntegerField(default=2000)
+    category = models.CharField(max_length=255, default='')
+    keywords = models.CharField(max_length=255, default='')
 
     class Meta:
         db_table = 'ProfessionalProfileDeleteRequest'
 
 # EmployerProfileDeleteRequest model
 class EmployerProfileDeleteRequest(models.Model):
-    request_id = models.AutoField(primary_key=True)
-    employer_id = models.CharField(max_length=10)
+    id = models.AutoField(primary_key=True)
+    company_name = models.CharField(max_length=255, default='')
+    street_address = models.CharField(max_length=255, default='')
+    city = models.CharField(max_length=255, default='')
+    state = models.CharField(max_length=255, default='')
+    zip = models.CharField(max_length=10, default='')
+    first_name = models.CharField(max_length=255, default='')
+    last_name = models.CharField(max_length=255, default='')
+    email = models.EmailField(default='')
+    phone = models.CharField(max_length=20, default='')
 
     class Meta:
         db_table = 'EmployerProfileDeleteRequest'

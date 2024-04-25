@@ -1,9 +1,42 @@
-from rest_framework import viewsets
-from .models import User, ProfessionalRegistration, Staff, Professional, EmployerRegistration, Employer, Job, CreateProfRequest, CreateEmpRequest, JobMatchingRequest, ProfessionalProfileDeleteRequest, EmployerProfileDeleteRequest
-from .serializers import UserSerializer, ProfessionalRegistrationSerializer, StaffSerializer, ProfessionalSerializer, EmployerRegistrationSerializer, EmployerSerializer, JobSerializer, CreateProfRequestSerializer, CreateEmpRequestSerializer, JobMatchingRequestSerializer, ProfessionalProfileDeleteRequestSerializer, EmployerProfileDeleteRequestSerializer
+from rest_framework import generics, viewsets
+from rest_framework.response import Response
+from .models import *
+from .serializers import *
+
+class ProfessionalRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Professional.objects.all()
+    serializer_class = ProfessionalSerializer
+
+    def patch(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+class EmployerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Employer.objects.all()
+    serializer_class = EmployerSerializer
+
+    def patch(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
 
 class CreateProfRequestViewSet(viewsets.ModelViewSet):
     queryset = CreateProfRequest.objects.all()
+    serializer_class = CreateProfRequestSerializer
 
 class ProfessionalRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = ProfessionalRegistrationSerializer
@@ -28,7 +61,7 @@ class EmployerViewSet(viewsets.ModelViewSet):
 class JobViewSet(viewsets.ModelViewSet):
     serializer_class = JobSerializer
     queryset = Job.objects.all()
-    
+
 class CreateProfRequestViewSet(viewsets.ModelViewSet):
     queryset = CreateProfRequest.objects.all()
     serializer_class = CreateProfRequestSerializer

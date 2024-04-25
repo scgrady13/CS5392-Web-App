@@ -8,7 +8,11 @@ router.register(r'professional-registrations', ProfessionalRegistrationViewSet, 
 
 router.register(r'employer-registrations', EmployerRegistrationViewSet, basename='employer-registration')
 
+router.register(r'employers-delete', EmployerProfileDeleteRequestViewSet, basename='employer-delete')
+router.register(r'professional-delete', ProfessionalProfileDeleteRequestViewSet, basename='professional-delete')
+
 router.register(r'employers', EmployerViewSet, basename='employer')
+
 router.register(r'professionals', ProfessionalViewSet, basename='professional')
 urlpatterns = [
     path("admin/", admin.site.urls),
