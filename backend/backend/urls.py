@@ -11,6 +11,7 @@ router.register(r'employer-registrations', EmployerRegistrationViewSet, basename
 router.register(r'employers-delete', EmployerProfileDeleteRequestViewSet, basename='employer-delete')
 router.register(r'professional-delete', ProfessionalProfileDeleteRequestViewSet, basename='professional-delete')
 
+router.register(r'job', JobViewSet, basename='job')
 router.register(r'employers', EmployerViewSet, basename='employer')
 
 router.register(r'professionals', ProfessionalViewSet, basename='professional')
